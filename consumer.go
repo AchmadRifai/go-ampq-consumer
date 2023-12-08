@@ -19,6 +19,7 @@ type ChannelParam struct {
 	Exclusive bool
 	NoLocal   bool
 	NoWait    bool
+	Args      ampq.Table
 }
 
 func Consuming(param ConsumerParams, process func(ampq.Delivery)) {
@@ -36,7 +37,7 @@ func channelingConsuming(conn *ampq.Connection, param ChannelParam, process func
 	if err != nil {
 		panic(err)
 	}
-	msgs, err := channel.Consume(param.Queue, param.Consumer, param.AutoAck, param.Exclusive, param.NoLocal, param.NoWait, nil)
+	msgs, err := channel.Consume(param.Queue, param.Consumer, param.AutoAck, param.Exclusive, param.NoLocal, param.NoWait, param.Args)
 	if err != nil {
 		panic(err)
 	}
