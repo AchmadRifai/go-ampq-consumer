@@ -44,6 +44,7 @@ func channelingConsuming(conn *ampq.Connection, param ChannelParam, process func
 	forever := make(chan bool)
 	go func() {
 		for msg := range msgs {
+			defer normalError()
 			process(msg)
 		}
 	}()
@@ -51,10 +52,7 @@ func channelingConsuming(conn *ampq.Connection, param ChannelParam, process func
 }
 
 func killChannel(ch *ampq.Channel) {
-	if r := recover(); r != nil {
-		log.Println("Error catched", r)
-		log.Println("Stack trace", string(debug.Stack()))
-	}
+	normalError()
 	if ch != nil {
 		if err := ch.Close(); err != nil {
 			panic(err)
@@ -63,13 +61,44 @@ func killChannel(ch *ampq.Channel) {
 }
 
 func killConnection(conn *ampq.Connection) {
-	if r := recover(); r != nil {
-		log.Println("Error catched", r)
-		log.Println("Stack trace", string(debug.Stack()))
-	}
+	normalError()
 	if conn != nil {
 		if err := conn.Close(); err != nil {
 			panic(err)
 		}
 	}
+}
+
+func normalError() {
+	if r := recover(); r != nil {
+		log.Println("Error catched", r)
+		log.Println("Stack trace", string(debug.Stack()))
+	}
+}
+
+type ExchangeDeclareParam struct {
+	Name       string
+	Kind       string
+	Durable    bool
+	AutoDelete bool
+	Internal   bool
+	NoWait     bool
+	Args       ampq.Table
+}
+
+type QueueDeclareParam struct {
+	Name       string
+	Durable    bool
+	AutoDelete bool
+	Exclusive  bool
+	NoWait     bool
+	Args       ampq.Table
+}
+
+type QueueBindParam struct {
+	Name     string
+	Key      string
+	Exchange string
+	NoWait   bool
+	Args     ampq.Table
 }
