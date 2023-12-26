@@ -6,11 +6,14 @@ import (
 
 type ConsumerPipeline struct {
 	url                   string
+	channel               *ampq.Channel
 	channelParam          ChannelParam
 	exchangeDeclareParams []ExchangeDeclareParam
 	queueDeclareParams    []QueueDeclareParam
 	queueBindParams       []QueueBindParam
 }
+
+func (p *ConsumerPipeline) GetChannel() *ampq.Channel { return p.channel }
 
 func (p *ConsumerPipeline) ExchangeDeclare(param ExchangeDeclareParam) *ConsumerPipeline {
 	p.exchangeDeclareParams = append(p.exchangeDeclareParams, param)
