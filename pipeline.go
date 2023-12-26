@@ -57,14 +57,14 @@ func (p *ConsumerPipeline) Execute(process func(ampq.Delivery)) {
 	if err != nil {
 		panic(err)
 	}
-	channel, err := conn.Channel()
-	defer killChannel(channel)
+	p.channel, err = conn.Channel()
+	defer killChannel(p.channel)
 	if err != nil {
 		panic(err)
 	}
-	p.setup(channel)
+	p.setup(p.channel)
 	param := p.channelParam
-	msgs, err := channel.Consume(param.Queue, param.Consumer, param.AutoAck, param.Exclusive, param.NoLocal, param.NoWait, param.Args)
+	msgs, err := p.channel.Consume(param.Queue, param.Consumer, param.AutoAck, param.Exclusive, param.NoLocal, param.NoWait, param.Args)
 	if err != nil {
 		panic(err)
 	}
